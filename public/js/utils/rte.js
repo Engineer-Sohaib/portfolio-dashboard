@@ -1,9 +1,3 @@
-/**
- * rte.js — the shared rich-text editor toolbar used by Projects ("full
- * description") and Blog Posts ("content"). Wraps `document.execCommand`,
- * which is deprecated but kept intentionally: swapping it for a real editor
- * library is out of scope for this refactor and would change behavior.
- */
 export function setupRte(wrapId, bodyId) {
   const wrap = document.getElementById(wrapId);
   const body = document.getElementById(bodyId);

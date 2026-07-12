@@ -1,4 +1,3 @@
-// src/modules/shell/ShellModule.js
 import { Module } from '../../core/Module.js';
 import { $id } from '../../utils/dom.js';
 import { PAGE, getLoginPath } from '../../core/router.js';
@@ -15,19 +14,6 @@ const KNOWN_NAV_LABELS = [
   'Blog Posts', 'Experience', 'Dashboard', 'Contact Messages',
 ];
 
-/**
- * ShellModule — everything that is present on *every* admin page: sidebar
- * navigation, the user menu, the notifications bell, the shared confirm
- * dialog, the appearance customization panel, and global keyboard shortcuts
- * (Cmd/Ctrl+K to search, Escape to close whatever's open, "n" to open the
- * current page's "Add new" panel).
- *
- * The "n" shortcut is intentionally decoupled: ShellModule doesn't know
- * which module owns "Add new" for the current page. It emits
- * `shortcut:new-item` on the bus; the active CRUD module listens for that
- * and opens its own Add panel. This keeps ShellModule from needing to
- * import (and thus hard-couple to) every feature module.
- */
 export class ShellModule extends Module {
   constructor() {
     super({ name: 'Shell' });
@@ -92,7 +78,6 @@ export class ShellModule extends Module {
       });
     }
 
-    // ---- LOGOUT with confirmation ----
     const logoutBtn = $id('paLogoutBtn');
     if (logoutBtn) {
       this.on(logoutBtn, 'click', () => this.handleLogout());
@@ -155,12 +140,7 @@ export class ShellModule extends Module {
     });
   }
 
-  /**
-   * Handle logout with confirmation dialog.
-   * Shows a confirmation prompt and redirects to login page on confirm.
-   */
   handleLogout() {
-    // Check if the shared confirm dialog is available
     const confirmOverlay = $id('paConfirmOverlay');
     const confirmText = $id('paConfirmText');
     const confirmTitle = $id('paConfirmTitle');
@@ -168,34 +148,18 @@ export class ShellModule extends Module {
     const confirmCancel = $id('paConfirmCancel');
 
     if (confirmOverlay && confirmText) {
-      // Set the confirmation message
       if (confirmTitle) confirmTitle.textContent = 'Logout?';
       confirmText.innerHTML = 'Are you sure you want to logout? You will need to sign in again to access the admin panel.';
       confirmOk.innerHTML = 'Logout';
-      
-      
-      // Show the overlay
       confirmOverlay.classList.add('visible');
-      
-      // Store the logout action for the confirm button
       const performLogout = () => {
-        // Close the confirm dialog
         confirmOverlay.classList.remove('visible');
-        
-        // Show logout toast
         showToast('Logging out...', 'info', 1500);
-        
-        // Redirect to login page after a brief delay
         setTimeout(() => {
-          // Clear any session data if needed
-          // localStorage.removeItem('pa_user_session');
-          
-          // Navigate to login page
           window.location.href = getLoginPath();
         }, 800);
       };
 
-      // Remove existing listeners and add new ones
       const newConfirmOk = confirmOk.cloneNode(true);
       const newConfirmCancel = confirmCancel.cloneNode(true);
       
@@ -212,7 +176,6 @@ export class ShellModule extends Module {
         });
       }
 
-      // Close on overlay click
       this.on(confirmOverlay, 'click', (e) => {
         if (e.target === confirmOverlay) {
           confirmOverlay.classList.remove('visible');
@@ -221,7 +184,6 @@ export class ShellModule extends Module {
       });
 
     } else {
-      // Fallback: use native confirm if the dialog is not available
       if (confirm('Are you sure you want to logout?')) {
         showToast('Logging out...', 'info');
         setTimeout(() => {

@@ -1,17 +1,3 @@
-// src/core/router.js
-/**
- * router.js — resolves the current admin page from the URL, once, at load
- * time. Legacy `app.js` recomputed this via an IIFE constant (`PAGE`); we
- * expose it as a function so it's testable and so `main.js` can decide which
- * module(s) to boot without a giant switch buried in module code.
- */
-
-// NOTE (Next.js migration): routes were originally matched against static
-// filenames (index.html, pages/projects.html, ...) because main.js ran from
-// three different directory depths on disk. Under Next.js's App Router every
-// page is served from a flat, absolute path, so the lookup table below uses
-// those paths instead. The page-key values (right-hand side) are UNCHANGED —
-// every module keeps checking `PAGE === 'projects'` etc. exactly as before.
 const ROUTES = [
   ['/projects', 'projects'],
   ['/categories', 'categories'],
@@ -22,7 +8,6 @@ const ROUTES = [
   ['/experience', 'experience'],
   ['/contact-messages', 'contact-messages'],
   ['/settings', 'settings'],
-  // Auth routes (these pages use their own modules)
   ['/login', 'login'],
   ['/forget-password', 'forgot-password'],
   ['/reset-password', 'reset-password'],
@@ -38,7 +23,6 @@ export function getCurrentPage(path = window.location.pathname) {
   for (const [needle, page] of ROUTES) {
     if (path.includes(needle)) return page;
   }
-  // Root path ("/") is the dashboard.
   return 'dashboard';
 }
 

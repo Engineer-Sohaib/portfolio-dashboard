@@ -88,7 +88,6 @@ export class ExperienceModule extends CrudCardModule {
     return { ...record, id: newId, title: `${record.title} (Copy)` };
   }
 
-  // Experience panels use "details"/"dates" tab groups, keyed by prefix.
   openAddPanel() {
     this.resetAddForm();
     openPanel(this.config.ids.addPanel, [this.config.ids.editPanel]);
@@ -116,8 +115,6 @@ export class ExperienceModule extends CrudCardModule {
       });
     });
   }
-
-  // ---- forms ------------------------------------------------------------
 
   resetAddForm() {
     ['expAddTitle', 'expAddCompany', 'expAddLocation', 'expAddStartDate', 'expAddEndDate', 'expAddDesc', 'expAddSort'].forEach((id) => { const el = $id(id); if (el) el.value = ''; });

@@ -60,9 +60,6 @@ export class CrudCardModule extends Module {
     this.currentEditId = null;
     this.nextId = 1;
 
-    // Universal select + bulk-action bar (checkbox select, Select All, Clear,
-    // Delete Selected) — same behavior as the Media Library page, shared via
-    // BulkSelectController. Opt out per-module by passing `bulkSelect: false`.
     this.bulkSelect = config.bulkSelect === false ? null : new BulkSelectController(this, {
       containerId: this.config.ids.grid,
       itemSelector: '.pa-card',
@@ -73,7 +70,6 @@ export class CrudCardModule extends Module {
     });
   }
 
-  /** Default bulk-delete: removes every record whose idField is in `ids`, persists, re-renders. */
   bulkDelete(ids) {
     const n = ids.size;
     if (n === 0) return;
@@ -88,7 +84,6 @@ export class CrudCardModule extends Module {
     return removed;
   }
 
-  // ---- required overrides (throw if not implemented) ---------------------
 
   /** @returns {Array<object>} fresh seed/demo records. */
   seedData() { throw new Error(`${this.name}: seedData() not implemented`); }
@@ -101,7 +96,6 @@ export class CrudCardModule extends Module {
   buildNewRecord(/* validatedFields */) { throw new Error(`${this.name}: buildNewRecord() not implemented`); }
   applyEditToRecord(/* record, validatedFields */) { throw new Error(`${this.name}: applyEditToRecord() not implemented`); }
 
-  // ---- optional overrides --------------------------------------------------
 
   matchesSearch(record, query) {
     const q = query.trim().toLowerCase();
@@ -119,7 +113,6 @@ export class CrudCardModule extends Module {
 
   onAfterRender() {}
 
-  // ---- lifecycle ------------------------------------------------------------
 
   async load() {
     const records = await this.loadRecords(() => this.seedData());
@@ -177,13 +170,10 @@ export class CrudCardModule extends Module {
       });
     });
 
-    // FIX: View mode toggle - use a single handler approach
-    // Get the buttons and re-bind them to avoid duplicate listeners
     const gridBtn = $id('paGridViewBtn');
     const listBtn = $id('paListViewBtn');
     
     if (gridBtn) {
-      // Clone and replace to remove all existing listeners
       const parent = gridBtn.parentNode;
       const newGridBtn = gridBtn.cloneNode(true);
       parent.replaceChild(newGridBtn, gridBtn);
@@ -219,7 +209,6 @@ export class CrudCardModule extends Module {
       listBtn.classList.toggle('active', mode === 'list');
     }
     
-    // Also update any view buttons with data-view attributes
     document.querySelectorAll('.pa-view-btn[data-view]').forEach(btn => {
       const view = btn.dataset.view;
       if (view === 'grid') {
@@ -243,7 +232,6 @@ export class CrudCardModule extends Module {
       listBtn.classList.toggle('active', mode === 'list');
     }
     
-    // Also update any view buttons with data-view attributes
     document.querySelectorAll('.pa-view-btn[data-view]').forEach(btn => {
       const view = btn.dataset.view;
       if (view === 'grid') {
@@ -256,7 +244,6 @@ export class CrudCardModule extends Module {
     this.render();
   }
 
-  // ---- filtering / pagination ------------------------------------------------
 
   getFiltered() {
     const { records, searchQuery, filters } = this.store._raw;
@@ -272,7 +259,6 @@ export class CrudCardModule extends Module {
     return this.store.get('records').find((r) => String(r[this.config.idField]) === String(id));
   }
 
-  // ---- rendering --------------------------------------------------------------
 
   render() {
     const { ids, pageSize } = this.config;
@@ -382,8 +368,6 @@ export class CrudCardModule extends Module {
     this.render();
   }
 
-  // ---- card actions (edit / delete / duplicate / copy / more-menu) -----------
-
   attachCardListeners() {
     const grid = $id(this.config.ids.grid);
     if (!grid) return;
@@ -452,8 +436,6 @@ export class CrudCardModule extends Module {
       this.notify(`"${name}" was deleted.`, 'ri-delete-bin-line');
     }
   }
-
-  // ---- Add / Edit panels ---------------------------------------------------
 
   openAddPanel() {
     if (PAGE !== this.config.page) return;

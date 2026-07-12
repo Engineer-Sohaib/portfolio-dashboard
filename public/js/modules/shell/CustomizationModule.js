@@ -1,4 +1,3 @@
-// src/modules/shell/CustomizationModule.js
 import { Module } from '../../core/Module.js';
 import { $id } from '../../utils/dom.js';
 import { storage } from '../../core/StorageService.js';
@@ -73,11 +72,6 @@ const VALID_FONT_SIZES = Object.keys(FONT_SIZE_MAP);
 const VALID_FONT_WEIGHTS = Object.keys(FONT_WEIGHT_MAP);
 const VALID_SPACINGS = Object.keys(SPACING_MAP);
 
-/**
- * CustomizationModule — appearance/theming panel. Persists under the fixed
- * key `appearance_settings_v2`, required verbatim by the spec so existing
- * saved preferences keep working across the refactor.
- */
 export class CustomizationModule extends Module {
   constructor() {
     super({ name: 'Customization', storageKey: CUSTOM_STORE_KEY });
@@ -117,8 +111,6 @@ export class CustomizationModule extends Module {
     this.syncUI();
   }
 
-  // ---- apply* ----------------------------------------------------------
-
   applyTheme(t) {
     const dark = t === 'system' ? this.systemMq.matches : t === 'dark';
     document.body.classList.toggle('light', !dark);
@@ -139,7 +131,6 @@ export class CustomizationModule extends Module {
   applyFontSize(fs) {
     const root = document.documentElement;
     const size = FONT_SIZE_MAP[fs] || '14px';
-    // Update all font size variables
     const sizeMap = {
       '10px': { md: '10px', lg: '12px', xl: '18px', xxl: '32px' },
       '14px': { md: '14px', lg: '16px', xl: '22px', xxl: '42px' },
@@ -152,7 +143,6 @@ export class CustomizationModule extends Module {
     root.style.setProperty('--pa-fs-lg', sizes.lg);
     root.style.setProperty('--pa-fs-xl', sizes.xl);
     root.style.setProperty('--pa-fs-xxl', sizes.xxl);
-    // Also set base font size
     root.style.fontSize = size;
   }
 
@@ -179,12 +169,10 @@ export class CustomizationModule extends Module {
   applyFontWeight(weight) {
     const root = document.documentElement;
     const w = FONT_WEIGHT_MAP[weight] || '400';
-    // Update all font weight variables
     root.style.setProperty('--pa-fw-sm', w);
     root.style.setProperty('--pa-fw-md', w);
     root.style.setProperty('--pa-fw-lg', String(parseInt(w) + 100));
     root.style.setProperty('--pa-fw-xl', String(parseInt(w) + 200));
-    // Apply to body
     document.body.style.fontWeight = w;
   }
 
@@ -203,8 +191,6 @@ export class CustomizationModule extends Module {
     const s = SPACING_MAP[spacing] || '10px';
     root.style.setProperty('--pa-gap-10', s);
   }
-
-  // ---- font dropdown -----------------------------------------------------
 
   buildFontList(query) {
     const list = $id('customFontList');
@@ -276,8 +262,6 @@ export class CustomizationModule extends Module {
     $id('customFontDropdownWrap')?.classList.contains('open') ? this.closeFontDropdown() : this.openFontDropdown();
   }
 
-  // ---- UI sync ------------------------------------------------------------
-
   syncUI() {
     document.querySelectorAll('.custom-theme-card').forEach((el) => {
       const active = el.dataset.theme === this.settings.theme;
@@ -290,21 +274,18 @@ export class CustomizationModule extends Module {
       el.setAttribute('aria-checked', String(active));
     });
     
-    // Sync font size buttons
     document.querySelectorAll('.custom-fs-btn[data-size]').forEach((el) => {
       const active = el.dataset.size === this.settings.fontSize;
       el.classList.toggle('active', active);
       el.setAttribute('aria-checked', String(active));
     });
     
-    // Sync font weight buttons
     document.querySelectorAll('.custom-fs-btn[data-weight]').forEach((el) => {
       const active = el.dataset.weight === this.settings.fontWeight;
       el.classList.toggle('active', active);
       el.setAttribute('aria-checked', String(active));
     });
     
-    // Sync spacing buttons
     document.querySelectorAll('.custom-fs-btn[data-spacing]').forEach((el) => {
       const active = el.dataset.spacing === this.settings.cardSpacing;
       el.classList.toggle('active', active);
@@ -342,7 +323,6 @@ export class CustomizationModule extends Module {
     setTimeout(() => { if (el.parentElement) dismiss(); }, 2500);
   }
 
-  // ---- panel open/close -------------------------------------------------
 
   togglePanel() {
     const panel = $id('paCustomPanel');
@@ -369,8 +349,6 @@ export class CustomizationModule extends Module {
     document.body.style.overflow = '';
     this.closeFontDropdown();
   }
-
-  // ---- event wiring -------------------------------------------------------
 
   bindEvents() {
     registerPanel('paCustomPanel');
@@ -407,15 +385,12 @@ export class CustomizationModule extends Module {
       });
     });
 
-    // Handle all custom-fs-btn clicks (font size, weight, spacing)
     document.querySelectorAll('.custom-fs-btn').forEach((btn) => {
-      // Clone to remove existing listeners
       const parent = btn.parentNode;
       const newBtn = btn.cloneNode(true);
       parent.replaceChild(newBtn, btn);
       
       this.on(newBtn, 'click', () => {
-        // Handle font size
         if (newBtn.dataset.size) {
           this.settings.fontSize = newBtn.dataset.size;
           this.applyFontSize(this.settings.fontSize);
@@ -423,7 +398,6 @@ export class CustomizationModule extends Module {
           this.save();
           this.showCustomToast(`Font size → ${this.settings.fontSize}`);
         }
-        // Handle font weight
         if (newBtn.dataset.weight) {
           this.settings.fontWeight = newBtn.dataset.weight;
           this.applyFontWeight(this.settings.fontWeight);
@@ -431,7 +405,6 @@ export class CustomizationModule extends Module {
           this.save();
           this.showCustomToast(`Font weight → ${this.settings.fontWeight}`);
         }
-        // Handle spacing
         if (newBtn.dataset.spacing) {
           this.settings.cardSpacing = newBtn.dataset.spacing;
           this.applyCardSpacing(this.settings.cardSpacing);

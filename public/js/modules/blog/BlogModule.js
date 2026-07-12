@@ -37,7 +37,7 @@ export class BlogModule extends CrudCardModule {
       filterSelectIds: [{ id: 'paBlogCategoryFilter', key: 'category' }, { id: 'paBlogStatusFilter', key: 'status' }],
       addFocusId: 'blogAddTitle',
       editFocusId: 'blogEditTitle',
-      tabGroup: null, // panels use their own tab groups ("blogAdd"/"blogEdit"); see open*Panel overrides.
+      tabGroup: null, 
       bulkLabel: 'post',
       ids: {
         grid: 'paBlogGrid', resultCount: 'paBlogResultCount',
@@ -112,8 +112,6 @@ export class BlogModule extends CrudCardModule {
     return { ...record, id: newId, title: `${record.title} (Copy)`, slug, status: 'Draft', featured: false, tags: [...record.tags], createdAt: new Date().toISOString() };
   }
 
-  // ---- featured image dropzone -------------------------------------------
-
   setFeaturedPreview(prefix, dataUrl, alt) {
     const wrap = $id(`${prefix}ImagePreviewWrap`);
     const img = $id(`${prefix}ImagePreviewImg`);
@@ -162,7 +160,6 @@ export class BlogModule extends CrudCardModule {
     setupRte('blogAddRteWrap', 'blogAddContent');
     setupRte('blogEditRteWrap', 'blogEditContent');
 
-    // Slug auto-fills from Title until the user edits Slug directly.
     this.on($id('blogAddTitle'), 'input', (e) => {
       if (!this.addSlugTouched) $id('blogAddSlug').value = slugify(e.target.value);
     });
@@ -188,8 +185,6 @@ export class BlogModule extends CrudCardModule {
     });
   }
 
-  // Blog panels use "blogAdd"/"blogEdit" tab groups (not the panel id) and
-  // default to the "content" tab, so these override the generic base logic.
   openAddPanel() {
     this.resetAddForm();
     openPanel(this.config.ids.addPanel, [this.config.ids.editPanel]);
@@ -206,8 +201,6 @@ export class BlogModule extends CrudCardModule {
     activateTab('blogEdit', 'content');
     setTimeout(() => $id('blogEditTitle')?.focus(), 320);
   }
-
-  // ---- forms ----------------------------------------------------------------
 
   resetAddForm() {
     ['blogAddTitle', 'blogAddSlug', 'blogAddCategory', 'blogAddExcerpt', 'blogAddImageAlt', 'blogAddSortOrder'].forEach((id) => { const el = $id(id); if (el) el.value = ''; });

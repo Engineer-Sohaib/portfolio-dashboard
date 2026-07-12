@@ -36,9 +36,6 @@ export class Module {
     this.log(`constructed`);
   }
 
-  // ---- lifecycle -----------------------------------------------------
-
-  /** Standard boot sequence. Called once by the router. */
   async init() {
     this.log('init');
     await this.load();
@@ -46,16 +43,10 @@ export class Module {
     this.bindEvents();
   }
 
-  /** Override: populate `this.store` from storage (or seed data). */
   async load() {}
 
-  /** Override: paint the module's DOM. */
   render() {}
-
-  /** Override: wire up DOM + bus listeners. Use `this.on(...)` for auto-cleanup. */
   bindEvents() {}
-
-  /** Tear down all listeners this module registered. Safe to call twice. */
   destroy() {
     if (this._destroyed) return;
     this._domListeners.forEach(({ el, type, handler, options }) => {
@@ -66,8 +57,6 @@ export class Module {
     this._destroyed = true;
     this.log('destroyed');
   }
-
-  // ---- persistence helpers --------------------------------------------
 
   /**
    * Load this module's records from storage, falling back to `seedFn()`
@@ -82,7 +71,6 @@ export class Module {
     return seedFn();
   }
 
-  /** Persist `data` under this module's storage key, surfacing quota errors as a toast. */
   async saveRecords(data) {
     if (!this.storageKey) throw new Error(`${this.name}: saveRecords() requires storageKey`);
     try {
@@ -93,14 +81,10 @@ export class Module {
     }
   }
 
-  // ---- DOM helpers ------------------------------------------------------
-
-  /** `document.getElementById` / `querySelector` shorthand, scoped to document by default. */
   $(selector, scope = document) {
     return $(selector, scope);
   }
 
-  /** `querySelectorAll` -> real array, scoped to document by default. */
   $all(selector, scope = document) {
     return $all(selector, scope);
   }
@@ -118,17 +102,13 @@ export class Module {
     this._domListeners.push({ el, type, handler, options });
   }
 
-  /** Subscribe to the app event bus; auto-removed on `destroy()`. */
   onBus(event, handler) {
     eventBus.on(event, handler, { owner: this });
   }
 
-  /** Emit an app-wide event. */
   emit(event, payload) {
     eventBus.emit(event, payload);
   }
-
-  // ---- shared UI helpers (thin wrappers so subclasses don't import directly) --
 
   toast(msg, type = 'info', duration) {
     showToast(msg, type, duration);
@@ -137,8 +117,6 @@ export class Module {
   notify(text, icon) {
     addNotification(text, icon);
   }
-
-  // ---- logging ------------------------------------------------------------
 
   log(...args) {
   }

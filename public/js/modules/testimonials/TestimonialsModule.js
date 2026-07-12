@@ -89,8 +89,6 @@ export class TestimonialsModule extends CrudCardModule {
     return { ...record, id: newId, name: `${record.name} (Copy)`, featured: false, createdAt: new Date().toISOString() };
   }
 
-  // ---- avatar dropzone -----------------------------------------------------
-
   setAvatarPreview(prefix, dataUrl, alt) {
     const wrap = $id(`${prefix}AvatarPreviewWrap`);
     const img = $id(`${prefix}AvatarPreviewImg`);
@@ -145,8 +143,6 @@ export class TestimonialsModule extends CrudCardModule {
     this.setupAvatarDropzone('testiAdd');
     this.setupAvatarDropzone('testiEdit');
   }
-
-  // ---- forms ----------------------------------------------------------------
 
   resetAddForm() {
     ['testiAddName', 'testiAddRole', 'testiAddCompany', 'testiAddQuote', 'testiAddAlt'].forEach((id) => { const el = $id(id); if (el) el.value = ''; });

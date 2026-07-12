@@ -317,8 +317,6 @@ export class ProjectsModule extends Module {
     this.notify(`"${p.title}" was deleted.`, 'ri-delete-bin-line');
   }
 
-  // ---- Add/Edit panels: gallery, featured image, RTE, chips -----------------
-
   clearFormErrors(prefix) {
     ['Title', 'Category', 'ShortDesc', 'FullDesc', 'Tech'].forEach((field) => {
       $id(`${prefix}${field}Error`)?.classList.remove('visible');
@@ -333,7 +331,6 @@ export class ProjectsModule extends Module {
   }
 
   resetAddForm() {
-    // Helper to safely set textContent
     const safeSetText = (id, text) => {
       const el = $id(id);
       if (el) el.textContent = text;
@@ -528,8 +525,6 @@ export class ProjectsModule extends Module {
     });
   }
 
-  // ---- validation + submit ---------------------------------------------------
-
   validateForm(prefix) {
     this.clearFormErrors(prefix);
     let valid = true;
@@ -656,8 +651,6 @@ export class ProjectsModule extends Module {
     }, 450);
   }
 
-  // ---- events ---------------------------------------------------------------
-
   bindEvents() {
     registerPanel('paAddPanel');
     registerPanel('paEditPanel');
@@ -761,11 +754,9 @@ export class ProjectsModule extends Module {
       });
     }
     
-    // FIX: View mode toggle with proper active class handling
     const gridBtn = $id('paGridViewBtn');
     const listBtn = $id('paListViewBtn');
     
-    // Remove existing listeners by cloning
     if (gridBtn) {
       const parent = gridBtn.parentNode;
       const newGridBtn = gridBtn.cloneNode(true);

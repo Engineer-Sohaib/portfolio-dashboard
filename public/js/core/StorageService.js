@@ -1,30 +1,3 @@
-/**
- * StorageService — persistence abstraction with a localStorage backend today
- * and a straightforward path to IndexedDB tomorrow, without touching any
- * feature module.
- *
- * Design:
- *  - Every feature module talks to `storage.get/set/remove` only. It never
- *    touches `localStorage` or `indexedDB` directly.
- *  - `StorageService` picks the best available backend once at construction:
- *      1. IndexedDB, if the browser supports it AND opening the DB succeeds.
- *      2. localStorage, otherwise.
- *  - An in-memory cache sits in front of both backends so repeated `get()`
- *    calls (e.g. re-renders) don't hit disk/DB every time. The cache is
- *    invalidated on `set`/`remove` for that key.
- *  - Bulk helpers (`getMany`/`setMany`) exist so callers can batch related
- *    writes into a single underlying transaction once IndexedDB is live.
- *  - Quota errors are caught and surfaced as a typed `StorageQuotaError`
- *    so calling code (or the global error boundary) can show a friendly
- *    toast instead of crashing.
- *
- * Migrating to IndexedDB later:
- *  - Implement the same 5 methods (get/set/remove/getMany/setMany) against
- *    an IDB object store in `_idbGet`/`_idbSet`/etc.
- *  - Nothing in `modules/**` needs to change — they only depend on this
- *    class's public API.
- */
-
 export class StorageQuotaError extends Error {
   constructor(key) {
     super(`Storage quota exceeded while writing "${key}"`);
@@ -44,13 +17,12 @@ export class StorageService {
    */
   constructor(opts = {}) {
     this.preferIndexedDB = opts.preferIndexedDB !== false;
-    this.backend = 'localStorage'; // becomes 'indexeddb' once ready() resolves and IDB opened
+    this.backend = 'localStorage'; 
     this._cache = new Map();
     this._db = null;
     this._readyPromise = this._init();
   }
 
-  /** Resolves once the best available backend has been selected. */
   ready() {
     return this._readyPromise;
   }
@@ -123,7 +95,6 @@ export class StorageService {
     }
   }
 
-  /** Remove a key from both cache and backend. */
   async remove(key) {
     await this._readyPromise;
     this._cache.delete(key);
@@ -134,14 +105,12 @@ export class StorageService {
     }
   }
 
-  /** Bulk read. Returns a `{ [key]: value }` map, missing keys resolved to `fallback`. */
   async getMany(keys, fallback = null) {
     const out = {};
     await Promise.all(keys.map(async (k) => { out[k] = await this.get(k, fallback); }));
     return out;
   }
 
-  /** Bulk write. Batches into one IndexedDB transaction when that backend is active. */
   async setMany(entries) {
     await this._readyPromise;
     if (this.backend === 'indexeddb') {
@@ -159,7 +128,6 @@ export class StorageService {
     }
   }
 
-  // ---- localStorage backend ----
   _lsGet(key) {
     return localStorage.getItem(key);
   }
@@ -168,7 +136,6 @@ export class StorageService {
     localStorage.setItem(key, raw);
   }
 
-  // ---- IndexedDB backend ----
   _idbGet(key) {
     return new Promise((resolve, reject) => {
       const tx = this._db.transaction(STORE_NAME, 'readonly');
@@ -216,5 +183,4 @@ export class StorageService {
   }
 }
 
-/** App-wide singleton, matching the EventBus pattern. */
 export const storage = new StorageService();

@@ -1,8 +1,3 @@
-/**
- * toast.js — transient notification "toasts" rendered into #paToastWrap.
- * Pure DOM module (no state store needed): each toast is a fire-and-forget
- * DOM node with its own removal timer.
- */
 import { $id, escapeHtml } from '../../utils/dom.js';
 
 const TOAST_ICONS = {

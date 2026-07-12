@@ -1,33 +1,7 @@
 import { $id } from '../utils/dom.js';
 import { requestBulkAction } from '../modules/shell/confirm.js';
 
-/**
- * BulkSelectController — the "select mode + bulk action bar" behavior used
- * on the Media Library page, generalized so any feature module (card grid
- * OR table) can opt in with a few lines of config.
- *
- * It owns exactly one thing: a `selectMode` flag + a `Set` of selected ids.
- * It never touches a module's records directly — deleting is delegated back
- * to the module via `onBulkDelete(idsSet)` so each module keeps full control
- * over its own store/persistence/toast copy.
- *
- * Usage in a module:
- *   this.bulkSelect = new BulkSelectController(this, {
- *     containerId: this.config.ids.grid,   // grid or <tbody> id
- *     itemSelector: '.pa-card',            // or 'tr' for a table
- *     idAttr: this.config.cardIdAttr,      // e.g. 'data-blog-id'
- *     label: 'post',                       // used in bar/dialog copy
- *     getVisibleIds: () => this.getFiltered().map((r) => r[this.config.idField]),
- *     onBulkDelete: (ids) => this.bulkDelete(ids),
- *   });
- *
- * In renderCard()/renderRow(): prefix the markup with
- *   this.bulkSelect.checkboxHtml(record.id, `Select ${record.title}`)
- * and add the selected-state class via `this.bulkSelect.cardClass(record.id)`.
- *
- * In render(), after the container's innerHTML is set:
- *   this.bulkSelect.onRender();
- */
+
 
 const DEFAULT_IDS = {
   selectBtn: 'paSelectModeBtn',
@@ -63,17 +37,14 @@ export class BulkSelectController {
   isSelected(id) { return this.selectedIds.has(String(id)); }
   get selectedCount() { return this.selectedIds.size; }
 
-  /** HTML for the per-item checkbox overlay. Hidden (via inline style) outside select mode. */
   checkboxHtml(id, ariaLabel = 'Select item') {
     const selected = this.isSelected(id);
     const hiddenStyle = this.selectMode ? '' : 'display:none;';
     return `<div class="pa-select-checkbox${selected ? ' selected' : ''}" data-select-id="${id}" style="${hiddenStyle}" role="checkbox" aria-checked="${selected}" aria-label="${ariaLabel}" tabindex="0"><i class="${selected ? 'ri-checkbox-fill' : 'ri-checkbox-blank-line'}"></i></div>`;
   }
 
-  /** Extra class to append to an item's root element so selected items get a highlight. */
   cardClass(id) { return this.isSelected(id) ? ' pa-selected' : ''; }
 
-  /** Call once after render()'s innerHTML assignment: wires buttons + item listeners + updates the bar. */
   onRender() {
     this._bindBar();
     this._attachItemListeners();
@@ -81,7 +52,7 @@ export class BulkSelectController {
   }
 
   _bindBar() {
-    if (this._bound) return; // toolbar/bar buttons live outside the re-rendered container; bind once
+    if (this._bound) return; 
     const selectBtn = $id(this.ids.selectBtn);
     if (selectBtn) selectBtn.addEventListener('click', () => this.toggleSelectMode());
     const selectAllBtn = $id(this.ids.selectAllBtn);

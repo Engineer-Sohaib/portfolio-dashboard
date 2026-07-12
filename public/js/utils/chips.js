@@ -1,7 +1,3 @@
-/**
- * chips.js — the shared tag/tech "chip" input used by Projects (tech stack)
- * and Blog Posts (tags).
- */
 import { escapeHtml } from './dom.js';
 
 export function addChip(chipContainer, text) {

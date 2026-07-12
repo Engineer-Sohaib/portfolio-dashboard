@@ -1,8 +1,3 @@
-/**
- * timing.js — debounce/throttle + rAF batching helpers.
- */
-
-/** Classic trailing-edge debounce. */
 export function debounce(fn, wait) {
   let t;
   return function debounced(...args) {
@@ -11,7 +6,6 @@ export function debounce(fn, wait) {
   };
 }
 
-/** Trailing-edge throttle: fn runs at most once per `wait` ms. */
 export function throttle(fn, wait) {
   let last = 0;
   let pendingArgs = null;
@@ -35,11 +29,6 @@ export function throttle(fn, wait) {
   };
 }
 
-/**
- * Coalesce many synchronous `schedule()` calls within the same frame into a
- * single `fn()` invocation via requestAnimationFrame. Use for render calls
- * that might otherwise fire multiple times per event loop tick.
- */
 export function rafScheduler(fn) {
   let scheduled = false;
   return function schedule(...args) {

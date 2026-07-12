@@ -1,4 +1,3 @@
-// src/modules/settings/SettingsModule.js
 import { Module } from '../../core/Module.js';
 import { $id, $all } from '../../utils/dom.js';
 import { showToast } from '../shell/toast.js';
@@ -16,22 +15,18 @@ export class SettingsModule extends Module {
   }
 
   async load() {
-    // Load saved settings if any
     const saved = await this.loadRecords(() => ({
       siteTitle: 'My Portfolio',
       siteTagline: 'Building digital experiences that matter',
-      // ... other defaults
     }));
     this.store.set('settings', saved);
   }
 
   render() {
-    // No-op - HTML is already in the page
     this.syncUI();
   }
 
   bindEvents() {
-    // ---- TAB SWITCHING ----
     const tabButtons = document.querySelectorAll('.pa-view-btn[data-tab]');
     tabButtons.forEach((btn) => {
       this.on(btn, 'click', () => {
@@ -40,7 +35,6 @@ export class SettingsModule extends Module {
       });
     });
 
-    // ---- GENERAL SETTINGS ----
     const saveGeneralBtn = document.querySelector('[data-save="general"]');
     if (saveGeneralBtn) {
       this.on(saveGeneralBtn, 'click', () => this.saveGeneralSettings());
@@ -61,14 +55,11 @@ export class SettingsModule extends Module {
       this.on(saveNotificationsBtn, 'click', () => this.saveNotificationPreferences());
     }
 
-    // ---- PROFILE ----
     const profileSaveBtn = $id('profileSaveBtn');
     if (profileSaveBtn) {
       this.on(profileSaveBtn, 'click', () => this.saveProfile());
     }
 
-    // ---- PROFILE PREVIEW ----
-    // Full name preview
     const fullNameInput = $id('profileFullName');
     if (fullNameInput) {
       this.on(fullNameInput, 'input', (e) => {
@@ -77,7 +68,6 @@ export class SettingsModule extends Module {
       });
     }
 
-    // Username preview
     const usernameInput = $id('profileUsername');
     if (usernameInput) {
       this.on(usernameInput, 'input', (e) => {
@@ -86,7 +76,6 @@ export class SettingsModule extends Module {
       });
     }
 
-    // Bio preview
     const bioInput = $id('profileBio');
     if (bioInput) {
       this.on(bioInput, 'input', (e) => {
@@ -95,7 +84,6 @@ export class SettingsModule extends Module {
       });
     }
 
-    // Location preview
     const locationInput = $id('profileLocation');
     if (locationInput) {
       this.on(locationInput, 'input', (e) => {
@@ -104,7 +92,6 @@ export class SettingsModule extends Module {
       });
     }
 
-    // Website preview
     const websiteInput = $id('profileWebsite');
     if (websiteInput) {
       this.on(websiteInput, 'input', (e) => {
@@ -113,7 +100,6 @@ export class SettingsModule extends Module {
       });
     }
 
-    // Cover image upload
     const coverUpload = $id('coverUpload');
     const coverFileInput = $id('coverFileInput');
     if (coverUpload && coverFileInput) {
@@ -133,7 +119,6 @@ export class SettingsModule extends Module {
       });
     }
 
-    // View public profile
     const viewProfileBtn = $id('viewPublicProfile');
     if (viewProfileBtn) {
       this.on(viewProfileBtn, 'click', () => {
@@ -142,13 +127,11 @@ export class SettingsModule extends Module {
       });
     }
 
-    // ---- SOCIAL LINKS ----
     const addSocialBtn = $id('addSocialBtn');
     if (addSocialBtn) {
       this.on(addSocialBtn, 'click', () => this.addSocialLink());
     }
 
-    // Delegate social link removal
     const container = $id('socialLinksContainer');
     if (container) {
       this.on(container, 'click', (e) => {
@@ -165,7 +148,6 @@ export class SettingsModule extends Module {
       });
     }
 
-    // ---- SECURITY ----
     const updatePasswordBtn = $id('updatePasswordBtn');
     if (updatePasswordBtn) {
       this.on(updatePasswordBtn, 'click', () => this.updatePassword());
@@ -222,7 +204,6 @@ export class SettingsModule extends Module {
       });
     }
 
-    // ---- NOTIFICATIONS ----
     const saveQuietHours = $id('saveQuietHours');
     if (saveQuietHours) {
       this.on(saveQuietHours, 'click', () => {
@@ -238,8 +219,6 @@ export class SettingsModule extends Module {
       });
     }
 
-    // ---- INTEGRATIONS ----
-    // Connect buttons
     const connectButtons = ['githubConnectBtn', 'slackConnectBtn', 'zapierConnectBtn', 'webhookConnectBtn'];
     connectButtons.forEach((id) => {
       const btn = $id(id);
@@ -249,7 +228,6 @@ export class SettingsModule extends Module {
           showToast(`Connecting to ${name}...`, 'info');
           setTimeout(() => {
             showToast(`Successfully connected to ${name}!`, 'success');
-            // Update status
             const item = btn.closest('.pa-integration-item');
             if (item) {
               const statusEl = item.querySelector('.pa-int-status');
@@ -264,7 +242,6 @@ export class SettingsModule extends Module {
                   <button class="pa-btn-sm primary">Configure</button>
                   <button class="pa-btn-sm danger">Disconnect</button>
                 `;
-                // Re-bind new buttons
                 const configureBtn = actions.querySelector('.pa-btn-sm.primary');
                 if (configureBtn) {
                   this.on(configureBtn, 'click', () => {
@@ -287,7 +264,6 @@ export class SettingsModule extends Module {
       }
     });
 
-    // Configure/Disconnect for existing integrations
     document.querySelectorAll('.pa-integration-item .pa-int-actions').forEach((actions) => {
       const configBtn = actions.querySelector('.pa-btn-sm.primary');
       const disconnectBtn = actions.querySelector('.pa-btn-sm.danger');
@@ -314,7 +290,6 @@ export class SettingsModule extends Module {
       }
     });
 
-    // ---- TOGGLE SWITCHES ----
     document.querySelectorAll('.pa-toggle-switch input[type="checkbox"]').forEach((checkbox) => {
       this.on(checkbox, 'change', (e) => {
         const label = checkbox.closest('.pa-toggle-wrap')?.querySelector('.pa-toggle-label');
@@ -325,7 +300,6 @@ export class SettingsModule extends Module {
       });
     });
 
-    // ---- DOCUMENTATION BUTTONS ----
     const docButtons = ['viewDocsBtn', 'viewDocsBtn2', 'manageDataAccessBtn', 'revokeAccessBtn'];
     docButtons.forEach((id) => {
       const btn = $id(id);
@@ -343,22 +317,14 @@ export class SettingsModule extends Module {
         });
       }
     });
-
-    // ---- CUSTOM TOAST WRAP ----
-    // The custom toast wrap is already in the HTML
   }
 
   switchTab(tab) {
-    // Update URL hash for bookmarking
     window.location.hash = tab;
-
-    // Update tab buttons
     document.querySelectorAll('.pa-view-btn[data-tab]').forEach((btn) => {
       btn.classList.toggle('active', btn.dataset.tab === tab);
       btn.setAttribute('aria-selected', btn.dataset.tab === tab ? 'true' : 'false');
     });
-
-    // Update tab panels
     document.querySelectorAll('.pa-tab-panel[data-panel="settings"]').forEach((panel) => {
       panel.classList.toggle('active', panel.dataset.content === tab);
     });
@@ -412,7 +378,6 @@ export class SettingsModule extends Module {
     const location = $id('profileLocation')?.value || '';
     const website = $id('profileWebsite')?.value || '';
 
-    // Get social links
     const socialLinks = [];
     document.querySelectorAll('.pa-social-group').forEach((group) => {
       const input = group.querySelector('.pa-form-input');
@@ -445,18 +410,14 @@ export class SettingsModule extends Module {
     const container = $id('socialLinksContainer');
     if (!container) return;
 
-    // Get the last group to clone
     const lastGroup = container.querySelector('.pa-social-group:last-child');
     if (lastGroup) {
       const newGroup = lastGroup.cloneNode(true);
-      // Clear the input value
       const input = newGroup.querySelector('.pa-form-input');
       if (input) input.value = '';
-      // Ensure remove button is visible
       const removeBtn = newGroup.querySelector('.pa-social-remove');
       if (removeBtn) {
         removeBtn.style.display = '';
-        // Re-bind remove event
         this.on(removeBtn, 'click', () => {
           if (container.children.length > 1) {
             newGroup.remove();

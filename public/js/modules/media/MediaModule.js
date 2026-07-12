@@ -65,8 +65,6 @@ export class MediaModule extends Module {
 
   findById(id) { return this.store.get('records').find((m) => m.id === id); }
 
-  // ---- rendering ------------------------------------------------------------
-
   buildCard(item, index) {
     const fm = FOLDER_META[item.folder] || FOLDER_META.general;
     const selectMode = this.store.get('selectMode');
@@ -267,7 +265,6 @@ export class MediaModule extends Module {
     const size = this.store.get('selectedIds').size;
     const selectMode = this.store.get('selectMode');
     
-    // Show the bar when selectMode is true AND there are selected items
     if (selectMode && size > 0) {
       bar.style.display = 'flex';
       const count = $id('paBulkSelectedCount');
@@ -350,8 +347,6 @@ export class MediaModule extends Module {
     this.toast(`"${m.name}" was deleted.`, 'danger');
     this.notify(`"${m.name}" was deleted.`, 'ri-delete-bin-line');
   }
-
-  // ---- upload panel (staged files) ------------------------------------------
 
   openUploadPanel() {
     if (PAGE !== 'media') return;
@@ -488,8 +483,6 @@ export class MediaModule extends Module {
     }, 400);
   }
 
-  // ---- events ---------------------------------------------------------------
-
   bindEvents() {
     registerPanel('paUploadPanel');
     registerPanel('paEditDetailsPanel');
@@ -519,7 +512,6 @@ export class MediaModule extends Module {
     this.on($id('paSearchClear'), 'click', () => { if (searchInput) { searchInput.value = ''; this.store.set('searchQuery', ''); this.render(); } });
     this.on($id('paFolderFilter'), 'change', (e) => { this.store.update({ folderFilter: e.target.value, page: 1 }); this.render(); });
 
-    // FIX: View mode toggle with proper active class handling
     const gridBtn = $id('paGridViewBtn');
     const listBtn = $id('paListViewBtn');
     
@@ -545,13 +537,11 @@ export class MediaModule extends Module {
       });
     }
 
-    // FIX: Select mode toggle
     const selectModeBtn = $id('paSelectModeBtn');
     if (selectModeBtn) {
       this.on(selectModeBtn, 'click', () => this.toggleSelectMode());
     }
 
-    // FIX: Bulk action buttons - Select All, Clear, Delete
     const selectAllBtn = $id('paBulkSelectAllBtn');
     if (selectAllBtn) {
       this.on(selectAllBtn, 'click', () => this.selectAllVisible());
@@ -567,7 +557,6 @@ export class MediaModule extends Module {
       this.on(bulkDeleteBtn, 'click', () => this.requestBulkDelete());
     }
 
-    // FIX: Bulk confirm dialog - Cancel and OK buttons
     const bulkCancel = $id('paBulkConfirmCancel');
     if (bulkCancel) {
       this.on(bulkCancel, 'click', () => this.closeBulkConfirm());
@@ -578,7 +567,6 @@ export class MediaModule extends Module {
       this.on(bulkOk, 'click', () => this.performBulkDelete());
     }
 
-    // Close bulk confirm on overlay click
     const overlay = $id('paBulkConfirmOverlay');
     if (overlay) {
       this.on(overlay, 'click', (e) => {

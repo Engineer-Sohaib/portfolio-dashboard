@@ -73,7 +73,6 @@ export class EventBus {
   emit(event, payload) {
     const set = this._listeners.get(event);
     if (!set || set.size === 0) return;
-    // Copy to array: handlers may unsubscribe themselves mid-iteration.
     for (const handler of Array.from(set)) {
       try {
         handler(payload);
@@ -95,12 +94,10 @@ export class EventBus {
     this._owners.delete(owner);
   }
 
-  /** Remove every listener for every event. Mostly useful for tests. */
   clear() {
     this._listeners.clear();
     this._owners.clear();
   }
 }
 
-/** App-wide singleton. Import this everywhere instead of constructing your own. */
 export const eventBus = new EventBus();

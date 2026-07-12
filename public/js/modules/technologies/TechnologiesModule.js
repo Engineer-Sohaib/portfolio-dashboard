@@ -105,8 +105,6 @@ export class TechnologiesModule extends CrudCardModule {
     return { ...record, id: newId, name: `${record.name} (Copy)`, featured: false };
   }
 
-  // ---- forms ----------------------------------------------------------
-
   resetAddForm() {
     ['techAddName', 'techAddGroup', 'techAddUrl', 'techAddDesc', 'techAddLevel', 'techAddYears', 'techAddSort'].forEach((id) => { const el = $id(id); if (el) el.value = ''; });
     $id('techAddDescCount').textContent = '0';

@@ -1,4 +1,3 @@
-// src/modules/auth/LoginModule.js
 import { AuthModule } from './AuthModule.js';
 import { $id } from '../../utils/dom.js';
 
@@ -6,16 +5,14 @@ export class LoginModule extends AuthModule {
   constructor() {
     super({
       name: 'Login',
-      storageKey: null, // No persistence needed
+      storageKey: null, 
     });
   }
 
   async load() {
-    // Nothing to load
   }
 
   render() {
-    // HTML is already in the page
   }
 
   bindEvents() {
@@ -29,10 +26,7 @@ export class LoginModule extends AuthModule {
     const forgotLink = $id('paForgotPasswordLink');
     const createAccountLink = $id('paCreateAccountLink');
 
-    // Setup password toggle
     this.setupPasswordToggle('paLoginPassword', 'paPassToggle');
-
-    // Clear errors on input
     this.on(emailInput, 'input', () => {
       this.clearFieldError('paLoginEmail', 'paLoginEmailError');
     });
@@ -40,23 +34,18 @@ export class LoginModule extends AuthModule {
       this.clearFieldError('paLoginPassword', 'paLoginPasswordError');
     });
 
-    // Handle Enter key
     this.handleEnterSubmit('paLoginPassword', 'paLoginForm');
 
-    // Forgot password link
     this.on(forgotLink, 'click', (e) => {
       e.preventDefault();
-      // Next.js migration: absolute route, no depth-relative branching needed.
       window.location.href = '/forget-password';
     });
 
-    // Create account link
     this.on(createAccountLink, 'click', (e) => {
       e.preventDefault();
       this.showToast('Account creation is not available in this demo.', 'info');
     });
 
-    // Form submission
     this.on(form, 'submit', (e) => {
       e.preventDefault();
       this.handleLogin();
@@ -71,7 +60,6 @@ export class LoginModule extends AuthModule {
 
     let valid = true;
 
-    // Validate email
     const emailValue = emailInput.value.trim();
     if (!emailValue || !this.isValidEmail(emailValue)) {
       this.setFieldError('paLoginEmail', 'paLoginEmailError', true);
@@ -80,7 +68,6 @@ export class LoginModule extends AuthModule {
       this.clearFieldError('paLoginEmail', 'paLoginEmailError');
     }
 
-    // Validate password
     const passwordValue = passwordInput.value;
     if (!passwordValue || passwordValue.length < 6) {
       this.setFieldError('paLoginPassword', 'paLoginPasswordError', true);
@@ -95,10 +82,8 @@ export class LoginModule extends AuthModule {
       return;
     }
 
-    // Show loading state
     this.setButtonLoading('paLoginSubmit', true);
 
-    // Emit event for future integration
     const form = $id('paLoginForm');
     form.dispatchEvent(new CustomEvent('pa:login-submit', {
       bubbles: true,
@@ -109,12 +94,10 @@ export class LoginModule extends AuthModule {
       },
     }));
 
-    // Simulate API call
     setTimeout(() => {
       this.setButtonLoading('paLoginSubmit', false);
       this.showSuccessToast('Login successful! Redirecting...');
       
-      // Redirect to dashboard
       setTimeout(() => {
         this.redirectToDashboard();
       }, 800);

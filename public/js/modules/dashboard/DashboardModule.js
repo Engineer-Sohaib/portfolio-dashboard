@@ -10,31 +10,6 @@ import { SEED_TESTIMONIALS } from '../testimonials/TestimonialsModule.js';
 import { SEED_MEDIA } from '../media/MediaModule.js';
 import { DEFAULT_CATEGORY_META } from '../categories/CategoriesModule.js';
 
-/**
- * DashboardModule — wires every widget on the dashboard (index.html) to real
- * records pulled through {@link storage} instead of the static demo markup
- * that used to sit there. It never touches HTML/CSS; it only rewrites the
- * *contents* of the existing elements (text, SVG children, SVG attributes)
- * using the same classes/ids/structure the stylesheet already targets.
- *
- * Data sources (same storage keys every other module already uses):
- *   pa_projects, pa_technologies, pa_experience, pa_testimonials,
- *   pa_media_library, pa_category_meta.
- *
- * Two of the eight charts ("Projects Over Time" and "Weekly Activity") need
- * creation timestamps to be meaningful. Projects didn't have one before —
- * `SEED_PROJECTS` now ships a `createdAt` per seed record and `ProjectsModule`
- * stamps `createdAt` on every new project going forward, so these two charts
- * keep being accurate as real data is added. Media and Testimonials already
- * had real dates (`uploadedAt` / `createdAt`) and needed no changes.
- *
- * The dashboard also had a duplicated "Technologies Distribution" donut
- * (identical to the one already in the top row). Since Technologies records
- * carry a `level` field that had no chart of its own, that duplicate now
- * renders "Technologies by Skill Level" instead — same card, same CSS, just
- * a more useful second technologies view.
- */
-
 const PALETTE = [
   'var(--pa-web)', 'var(--pa-green)', 'var(--pa-edu)', 'var(--pa-orange)',
   'var(--pa-pink)', 'var(--pa-yellow)', 'var(--pa-blue)', 'var(--pa-purple)',
@@ -65,7 +40,6 @@ const DEFAULT_ICON = 'ri-apps-line';
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-/** "YYYY-MM" -> Date at day 1, or null. */
 function parseYearMonth(ym) {
   if (!ym) return null;
   const [y, m] = ym.split('-').map(Number);
@@ -73,7 +47,6 @@ function parseYearMonth(ym) {
   return new Date(y, m - 1, 1);
 }
 
-/** Day-of-week index with Monday = 0 .. Sunday = 6, or null for an invalid date. */
 function mondayIndex(iso) {
   if (!iso) return null;
   const d = new Date(iso);
@@ -81,19 +54,10 @@ function mondayIndex(iso) {
   return (d.getDay() + 6) % 7;
 }
 
-/** Round a max value up to a "nice" axis ceiling divisible by 5 (min 5). */
 function niceCeiling(maxValue) {
   return Math.max(5, Math.ceil(maxValue / 5) * 5);
 }
 
-/**
- * Charts now render through CanvasJS (into plain <canvas> elements), which
- * can't resolve CSS custom properties the way SVG/CSS could. `resolveColor`
- * takes the same `'var(--pa-orange)'` strings the rest of the codebase
- * already uses and reads the *current* computed value off `document.body`
- * (so light/dark theme colors still resolve correctly), falling back to the
- * original string if it isn't a CSS variable reference.
- */
 function resolveColor(value) {
   if (typeof value !== 'string') return value;
   const match = value.match(/^var\((--[\w-]+)\)$/);
@@ -102,7 +66,6 @@ function resolveColor(value) {
   return resolved || value;
 }
 
-/** Assigns a stable auto-generated id to `el` (needed because CanvasJS mounts by element id, not reference) if it doesn't already have one. */
 let chartIdSeq = 0;
 function ensureId(el, prefix) {
   if (!el.id) el.id = `${prefix}${++chartIdSeq}`;
@@ -147,12 +110,7 @@ export class DashboardModule extends Module {
   }
 
   bindEvents() {
-    // The dashboard is read-only: every widget is recomputed from storage
-    // on load, the same way every other page recomputes from storage on
-    // navigation. No listeners needed.
   }
-
-  // ---- stat cards ----------------------------------------------------
 
   renderStatCards() {
     this.setText('#dashTotalProjects', this.projects.length);
@@ -161,10 +119,6 @@ export class DashboardModule extends Module {
     this.setText('#dashTotalTesti', this.testimonials.length);
     this.setText('#dashTotalExp', this.experience.length);
 
-    // Only Projects, Media and Testimonials carry a real creation date in
-    // this data model, so only those three get a real "new this month"
-    // trend line. Technologies/Experience trend text is left as authored
-    // rather than inventing a number we can't back up.
     this.updateStatTrend('#dashTotalProjects', this.countRecent(this.projects, 'createdAt'), 'project');
     this.updateStatTrend('#dashTotalMedia', this.countRecent(this.media, 'uploadedAt'), 'file');
     this.updateStatTrend('#dashTotalTesti', this.countRecent(this.testimonials, 'createdAt'), 'testimonial');
@@ -197,9 +151,6 @@ export class DashboardModule extends Module {
     if (el) el.textContent = String(value);
   }
 
-  // ---- donut charts ----------------------------------------------------
-
-  /** Rebuild a donut's CanvasJS ring, center value and legend from `segments = [{label, value, color}]`. */
   buildDonut(cardEl, segments, centerLabel) {
     if (!cardEl) return;
     const container = $('.pa-donut-canvas', cardEl);
@@ -241,13 +192,6 @@ export class DashboardModule extends Module {
     }
   }
 
-  /**
-   * Rebuild the "Projects by Category" pie as a standard CanvasJS pie chart
-   * with a built-in legend and percentage index labels. `segments =
-   * [{label, value, color}]`. `centerValue`/`centerLabel` are accepted for
-   * backwards compatibility with existing call sites but no longer rendered
-   * (CanvasJS pies have no center medallion slot).
-   */
   buildExplodedPie(cardEl, segments) {
     if (!cardEl) return;
     const container = $('.pa-explode-pie-canvas', cardEl);
@@ -327,7 +271,6 @@ export class DashboardModule extends Module {
     this.buildDonut(card, segments, this.technologies.length);
   }
 
-  /** Repurposes the previously-duplicated "Technologies Distribution" donut as skill-level distribution. */
   renderTechLevelDonut() {
     const card = $('.pa-dash-charts-3 .pa-donut-card');
     if (!card) return;
@@ -349,8 +292,6 @@ export class DashboardModule extends Module {
     if (container) container.setAttribute('aria-label', 'Technologies by skill level donut chart');
   }
 
-  // ---- gauge -------------------------------------------------------------
-
   renderCompletionGauge() {
     const card = $('.pa-gauge-chart-card');
     if (!card) return;
@@ -362,9 +303,6 @@ export class DashboardModule extends Module {
     if (container && typeof CanvasJS !== 'undefined') {
       const id = ensureId(container, 'paGaugeCanvas');
       container.innerHTML = '';
-      // Semicircle "gauge" trick: draw a full doughnut starting at 9 o'clock
-      // (startAngle: -90) and let the card's overflow:hidden wrapper (sized
-      // to half the doughnut's height) clip away the bottom half.
       const fillColor = pct >= 75 ? 'var(--pa-green)' : pct >= 50 ? 'var(--pa-yellow)' : pct >= 25 ? 'var(--pa-orange)' : 'var(--pa-red)';
       new CanvasJS.Chart(id, {
         backgroundColor: 'transparent',
@@ -388,14 +326,9 @@ export class DashboardModule extends Module {
     const valueEl = $('.pa-gauge-value', card);
     if (valueEl) valueEl.textContent = `${pct}%`;
 
-    // No historical snapshot exists to compute a real month-over-month
-    // delta, so this shows the real current ratio instead of a fabricated
-    // trend percentage.
     const trendEl = $('.pa-gauge-trend', card);
     if (trendEl) trendEl.innerHTML = `<i class="ri-checkbox-circle-line"></i> ${completed} of ${total} projects completed`;
   }
-
-  // ---- bar chart: experience by year -------------------------------------
 
   renderExperienceBarChart() {
     const card = $('.pa-bar-chart-card');
@@ -448,8 +381,6 @@ export class DashboardModule extends Module {
       }],
     }).render();
   }
-
-  // ---- line chart: projects over time ------------------------------------
 
   renderProjectsOverTimeLine() {
     const card = $('.pa-line-chart-card');
@@ -504,8 +435,6 @@ export class DashboardModule extends Module {
     container.setAttribute('aria-label', `Total projects over time from ${monthly[0].label} to ${monthly[monthly.length - 1].label}`);
   }
 
-  // ---- multiline chart: weekly activity ----------------------------------
-
   renderWeeklyActivityChart() {
     const card = $('.pa-multiline-chart-card');
     const container = card ? $('.pa-canvasjs-mount-multiline', card) : null;
@@ -547,8 +476,6 @@ export class DashboardModule extends Module {
       ],
     }).render();
   }
-
-  // ---- recent projects / activity feed -----------------------------------
 
   renderRecentProjects() {
     const container = $id('dashRecentProjects');

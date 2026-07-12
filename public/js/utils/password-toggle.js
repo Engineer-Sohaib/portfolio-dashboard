@@ -1,19 +1,3 @@
-// src/utils/password-toggle.js
-/**
- * password-toggle.js — Adds show/hide functionality to password input fields.
- * 
- * Usage:
- *   <div class="pa-password-wrap">
- *     <input type="password" id="myPassword" class="pa-form-input" />
- *     <button type="button" class="pa-password-toggle" aria-label="Toggle password visibility">
- *       <i class="ri-eye-line"></i>
- *     </button>
- *   </div>
- * 
- *   import { setupPasswordToggle } from './utils/password-toggle.js';
- *   setupPasswordToggle('myPassword');
- */
-
 /**
  * Set up password toggle for a specific password input.
  * @param {string|HTMLElement} inputId - The ID of the password input or the element itself
@@ -27,24 +11,19 @@ export function setupPasswordToggle(inputId, toggleBtnId) {
     return null;
   }
 
-  // Find or create the toggle button
   let toggleBtn = null;
   
-  // If toggleBtnId is provided, try to find it
   if (toggleBtnId) {
     toggleBtn = document.getElementById(toggleBtnId);
   }
   
-  // If not found, look for .pa-password-toggle inside the parent
   if (!toggleBtn) {
     const parent = input.closest('.pa-password-wrap') || input.parentElement;
     toggleBtn = parent?.querySelector('.pa-password-toggle');
   }
   
-  // If still not found, create one
   if (!toggleBtn) {
     const parent = input.parentElement;
-    // Check if we're inside a .pa-password-wrap, if not wrap the input
     let wrap = parent?.closest('.pa-password-wrap');
     if (!wrap) {
       wrap = document.createElement('div');
@@ -63,7 +42,6 @@ export function setupPasswordToggle(inputId, toggleBtnId) {
     wrap.appendChild(toggleBtn);
   }
 
-  // Add click handler
   const handler = () => {
     const isPassword = input.type === 'password';
     input.type = isPassword ? 'text' : 'password';
@@ -72,13 +50,11 @@ export function setupPasswordToggle(inputId, toggleBtnId) {
       icon.className = isPassword ? 'ri-eye-off-line' : 'ri-eye-line';
     }
     toggleBtn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
-    // Keep focus on the input
     input.focus();
   };
 
   toggleBtn.addEventListener('click', handler);
 
-  // Cleanup function
   const cleanup = () => {
     toggleBtn.removeEventListener('click', handler);
   };
@@ -103,7 +79,6 @@ export function setupAllPasswordToggles(container = document, selector = 'input[
   const toggles = [];
 
   passwordInputs.forEach((input) => {
-    // Skip if already has a toggle
     const existingToggle = input.closest('.pa-password-wrap')?.querySelector('.pa-password-toggle');
     if (existingToggle) {
       toggles.push(existingToggle);
@@ -117,9 +92,6 @@ export function setupAllPasswordToggles(container = document, selector = 'input[
   return toggles;
 }
 
-/**
- * Add CSS styles for password toggle if not already present.
- */
 export function injectPasswordToggleStyles() {
   if (document.getElementById('pa-password-toggle-styles')) return;
   

@@ -1,9 +1,3 @@
-/**
- * validation.js — small, composable form-field validators shared by every
- * Add/Edit panel. Each validator returns `true` (valid) or a string error
- * message, so callers can do `const err = required(val); if (err) fail(err)`.
- */
-
 export function required(value, label = 'This field') {
   const v = typeof value === 'string' ? value.trim() : value;
   if (v === '' || v == null || (Array.isArray(v) && v.length === 0)) {
@@ -35,11 +29,6 @@ export function urlField(value, label = 'URL') {
   }
 }
 
-/**
- * Run a `{ field: [validators] }` map against a `{ field: value }` object.
- * Returns `{ valid, errors }` where `errors` is `{ field: message }` for the
- * first failing validator per field.
- */
 export function runValidators(values, schema) {
   const errors = {};
   let valid = true;

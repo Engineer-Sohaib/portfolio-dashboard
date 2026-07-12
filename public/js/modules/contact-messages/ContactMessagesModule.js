@@ -1,4 +1,3 @@
-// src/modules/contact-messages/ContactMessagesModule.js
 import { Module } from '../../core/Module.js';
 import { $id, $all, escapeHtml } from '../../utils/dom.js';
 import { csvEscapeField } from '../../utils/format.js';
@@ -11,7 +10,6 @@ import { BulkSelectController } from '../../core/BulkSelectController.js';
 const MSG_AVATAR_COLORS = ['#e5484d', '#f0c040', '#22c55e', '#38bdf8', '#a78bfa', '#f472b6', '#ff6600', '#2dd4bf'];
 const PAGE_SIZE = 8;
 
-// Column configuration with persistence keys
 const COLUMN_CONFIG = {
   checkbox: { label: 'Select', default: true, width: '36px' },
   from: { label: 'From', default: true, width: 'auto' },
@@ -47,7 +45,6 @@ const MSG_REPLY_TEMPLATES = [
   (n) => `Hi ${n.split(' ')[0]},\n\nThanks for the message! I've put together some initial thoughts and will send over a proposal soon.\n\nBest regards,\nAdmin User`,
 ];
 
-/** Small deterministic PRNG so generated seed data (and therefore stats/pagination) look the same on every fresh load. */
 function msgSeededRandom(seed) {
   let s = seed;
   return function next() { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
@@ -150,8 +147,6 @@ export class ContactMessagesModule extends Module {
       const saved = localStorage.getItem(COLUMN_STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Merge with defaults
-        const result = { ...COLUMN_CONFIG };
         Object.keys(result).forEach(key => {
           if (parsed[key] !== undefined) {
             result[key].default = parsed[key];
@@ -212,8 +207,6 @@ export class ContactMessagesModule extends Module {
     return result;
   }
 
-  // ---- rendering ------------------------------------------------------------
-
   render() {
     this.renderTable();
   }
@@ -258,8 +251,6 @@ export class ContactMessagesModule extends Module {
     
     let cells = '';
     
-    // Checkbox column — normal mode selects a message for preview; select
-    // mode swaps it for a real multi-select checkbox feeding the bulk bar.
     if (visibility.checkbox.default) {
       if (bulkMode) {
         cells += `<td style="width:36px;"><input type="checkbox" class="pa-msg-bulk-checkbox" data-select-id="${m.id}" ${bulkSelected ? 'checked' : ''} aria-label="Select message from ${escapeHtml(m.name)} for bulk actions" /></td>`;
@@ -268,27 +259,22 @@ export class ContactMessagesModule extends Module {
       }
     }
     
-    // From column
     if (visibility.from.default) {
       cells += `<td><div class="pa-msg-from"><div class="pa-msg-avatar" style="background:${color};">${escapeHtml(initials)}</div><div style="min-width:0;"><div class="pa-msg-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(m.name)}</div><div class="pa-msg-email" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(m.email)}</div></div></div></td>`;
     }
     
-    // Subject column
     if (visibility.subject.default) {
       cells += `<td class="pa-msg-subject-col"><div class="pa-msg-subject">${escapeHtml(m.subject)}</div><div class="pa-msg-snippet">${escapeHtml(m.snippet)}</div></td>`;
     }
     
-    // Status column
     if (visibility.status.default) {
       cells += `<td><span class="pa-status-badge ${m.status}">${statusLabel(m.status)}</span></td>`;
     }
     
-    // Date column
     if (visibility.date.default) {
       cells += `<td><div class="pa-msg-date">${date}</div><div class="pa-msg-time">${time}</div></td>`;
     }
     
-    // Actions column
     if (visibility.actions.default) {
       cells += `<td><div class="pa-msg-actions pa-card-actions"><button class="pa-action-btn pa-action-more" data-action="menu" data-msg-id="${m.id}" title="More options" aria-label="More options"><i class="ri-more-2-fill"></i></button><div class="pa-card-menu" data-msg-id="${m.id}"><div class="pa-card-menu-item" data-action="${m.status === 'new' ? 'mark-read' : 'mark-unread'}" data-msg-id="${m.id}"><i class="ri-mail-open-line"></i> ${m.status === 'new' ? 'Mark as Read' : 'Mark as Unread'}</div><div class="pa-card-menu-item" data-action="toggle-spam" data-msg-id="${m.id}"><i class="ri-spam-2-line"></i> ${m.status === 'spam' ? 'Not Spam' : 'Mark as Spam'}</div><div class="pa-card-menu-item danger" data-action="delete" data-msg-id="${m.id}"><i class="ri-delete-bin-line"></i> Delete</div></div></div></td>`;
     }
@@ -363,7 +349,7 @@ export class ContactMessagesModule extends Module {
     if (!tbody) return;
     tbody.querySelectorAll('.pa-msg-row').forEach((row) => {
       row.addEventListener('click', (e) => {
-        if (this.bulkSelect.isSelectMode()) return; // BulkSelectController owns row clicks in select mode
+        if (this.bulkSelect.isSelectMode()) return;
         if (e.target.closest('.pa-msg-actions') || e.target.classList.contains('pa-msg-checkbox')) return;
         this.selectMessage(parseInt(row.dataset.msgId, 10));
       });
@@ -562,10 +548,7 @@ export class ContactMessagesModule extends Module {
     this.notify(`Exported ${rows.length} contact messages.`, 'ri-download-2-line');
   }
 
-  // ---- Column Visibility Management ----
-
   openColumnVisibilityPanel() {
-    // Close any existing dropdown
     const existing = $id('paColumnVisibilityDropdown');
     if (existing) {
       existing.remove();
@@ -575,7 +558,6 @@ export class ContactMessagesModule extends Module {
     const btn = $id('paMsgColumnsBtn');
     if (!btn) return;
 
-    // Create dropdown panel
     const dropdown = document.createElement('div');
     dropdown.id = 'paColumnVisibilityDropdown';
     dropdown.className = 'pa-column-visibility-dropdown';
@@ -611,7 +593,6 @@ export class ContactMessagesModule extends Module {
       </div>
     `;
 
-    // Position the dropdown relative to the button
     const rect = btn.getBoundingClientRect();
     dropdown.style.position = 'fixed';
     dropdown.style.top = `${rect.bottom + 4}px`;
@@ -619,16 +600,13 @@ export class ContactMessagesModule extends Module {
 
     document.body.appendChild(dropdown);
 
-    // Handle checkbox changes
     dropdown.querySelectorAll('input[type="checkbox"]').forEach(cb => {
       cb.addEventListener('change', () => {
-        // Update the visibility state (but don't apply yet)
         const key = cb.dataset.column;
         this.columnVisibility[key].default = cb.checked;
       });
     });
 
-    // Apply button
     const applyBtn = dropdown.querySelector('#paColumnApplyBtn');
     applyBtn?.addEventListener('click', () => {
       this.saveColumnVisibility();
@@ -637,7 +615,6 @@ export class ContactMessagesModule extends Module {
       dropdown.remove();
     });
 
-    // Reset button
     const resetBtn = dropdown.querySelector('#paColumnResetBtn');
     resetBtn?.addEventListener('click', () => {
       Object.keys(COLUMN_CONFIG).forEach(key => {
@@ -651,7 +628,6 @@ export class ContactMessagesModule extends Module {
       dropdown.remove();
     });
 
-    // Close dropdown on outside click
     const closeDropdown = (e) => {
       if (!dropdown.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
         dropdown.remove();
@@ -660,7 +636,6 @@ export class ContactMessagesModule extends Module {
     };
     setTimeout(() => document.addEventListener('click', closeDropdown), 10);
 
-    // Close on Escape
     const escHandler = (e) => {
       if (e.key === 'Escape') {
         dropdown.remove();
@@ -672,7 +647,6 @@ export class ContactMessagesModule extends Module {
   }
 
   updateColumnVisibilityUI() {
-    // Update the table header to show/hide columns
     const thead = document.querySelector('#paMsgTable thead tr');
     if (!thead) return;
 
@@ -688,10 +662,7 @@ export class ContactMessagesModule extends Module {
     });
   }
 
-  // ---- events ---------------------------------------------------------------
-
   bindEvents() {
-    // Setup password toggles if any exist on this page
     injectPasswordToggleStyles();
     setTimeout(() => setupAllPasswordToggles(), 100);
 
@@ -747,10 +718,8 @@ export class ContactMessagesModule extends Module {
 
     this.on($id('paMsgExportBtn'), 'click', () => this.exportCsv());
 
-    // ---- COLUMN VISIBILITY BUTTON ----
     const columnsBtn = $id('paMsgColumnsBtn');
     if (columnsBtn) {
-      // Clone to remove existing listeners
       const parent = columnsBtn.parentNode;
       const newBtn = columnsBtn.cloneNode(true);
       parent.replaceChild(newBtn, columnsBtn);

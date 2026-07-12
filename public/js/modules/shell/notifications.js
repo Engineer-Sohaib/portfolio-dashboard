@@ -1,8 +1,3 @@
-/**
- * notifications.js — the bell-icon notification list (#paNotifList). Keeps
- * its own tiny in-memory array; nothing here is persisted, matching legacy
- * behavior (`notifications` was a page-session-only global).
- */
 import { $id, escapeHtml } from '../../utils/dom.js';
 import { PAGE } from '../../core/router.js';
 

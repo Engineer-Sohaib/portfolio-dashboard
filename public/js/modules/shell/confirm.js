@@ -1,13 +1,3 @@
-/**
- * confirm.js — the single shared "are you sure?" dialog (#paConfirmOverlay)
- * used by every feature module's delete action.
- *
- * Decoupling: this file has zero knowledge of Projects/Categories/etc. It
- * just remembers the pending `{ id, type }` and, on confirm, emits
- * `confirm:confirmed` on the event bus. Each CRUD module subscribes to that
- * event and checks `payload.type === 'project'` (etc.) before acting — so
- * adding a new deletable entity type never requires touching this file.
- */
 import { $id } from '../../utils/dom.js';
 import { eventBus } from '../../core/EventBus.js';
 import { closePanels } from './panels.js';
@@ -15,9 +5,6 @@ import { closePanels } from './panels.js';
 let pendingId = null;
 let pendingType = null;
 
-// Bulk-delete uses the SAME shared dialog (#paConfirmOverlay) rather than a
-// second overlay per page. `pendingBulkConfirm`, when set, takes priority
-// over the id/type flow above and just invokes a callback on confirm.
 let pendingBulkConfirm = null;
 let bulkTitleBackup = null;
 
@@ -94,7 +81,6 @@ function performDelete() {
   eventBus.emit('confirm:confirmed', { id, type });
 }
 
-/** Wire the dialog's own buttons once at boot. Called from ShellModule. */
 export function initConfirmDialog() {
   $id('paConfirmCancel')?.addEventListener('click', closeConfirm);
   $id('paConfirmOk')?.addEventListener('click', performDelete);
@@ -103,7 +89,6 @@ export function initConfirmDialog() {
   });
 }
 
-/** True while the confirm dialog is open — used by the global Escape-key handler. */
 export function isConfirmOpen() {
   return !!$id('paConfirmOverlay')?.classList.contains('visible');
 }

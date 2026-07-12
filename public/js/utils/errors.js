@@ -1,7 +1,3 @@
-/**
- * errors.js — a tiny error boundary for render/event-handler code so one
- * module's bug shows a toast instead of white-screening the whole admin panel.
- */
 import { showToast } from '../modules/shell/toast.js';
 
 /**
@@ -23,7 +19,6 @@ export function guarded(moduleName, actionName, fn) {
   };
 }
 
-/** Same as `guarded`, but for async functions/promises. */
 export function guardedAsync(moduleName, actionName, fn) {
   return async function guardedAsyncFn(...args) {
     try {

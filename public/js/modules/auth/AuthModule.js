@@ -1,12 +1,7 @@
-// src/modules/auth/AuthModule.js
 import { Module } from '../../core/Module.js';
 import { $id } from '../../utils/dom.js';
 import { showToast } from '../shell/toast.js';
 
-/**
- * AuthModule - Base class for authentication pages
- * Provides common validation and UI utilities
- */
 export class AuthModule extends Module {
   constructor({ name, storageKey } = {}) {
     super({ name, storageKey });
@@ -40,23 +35,14 @@ export class AuthModule extends Module {
     }
   }
 
-  /**
-   * Clear field error
-   */
   clearFieldError(inputId, errorId) {
     this.setFieldError(inputId, errorId, false);
   }
 
-  /**
-   * Validate email format
-   */
   isValidEmail(value) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
   }
 
-  /**
-   * Validate password strength
-   */
   validatePassword(password) {
     return {
       length: password.length >= 8,
@@ -67,9 +53,6 @@ export class AuthModule extends Module {
     };
   }
 
-  /**
-   * Get password strength level
-   */
   getPasswordStrength(password) {
     const checks = this.validatePassword(password);
     const passed = Object.values(checks).filter(Boolean).length;
@@ -79,17 +62,11 @@ export class AuthModule extends Module {
     return { level: 'strong', label: 'Very Strong' };
   }
 
-  /**
-   * Check if all password requirements are met
-   */
   isPasswordValid(password) {
     const checks = this.validatePassword(password);
     return Object.values(checks).every(Boolean);
   }
 
-  /**
-   * Set button loading state
-   */
   setButtonLoading(btnId, loading) {
     const btn = $id(btnId);
     if (!btn) return;
@@ -97,9 +74,6 @@ export class AuthModule extends Module {
     btn.disabled = loading;
   }
 
-  /**
-   * Show success state and hide form
-   */
   showSuccess(successBoxId, formId) {
     const successBox = $id(successBoxId);
     const form = $id(formId);
@@ -107,23 +81,14 @@ export class AuthModule extends Module {
     if (form) form.style.display = 'none';
   }
 
-  /**
-   * Show error toast
-   */
   showError(message) {
     showToast(message, 'danger');
   }
 
-  /**
-   * Show success toast
-   */
   showSuccessToast(message) {
     showToast(message, 'success');
   }
 
-  /**
-   * Setup password toggle for an input
-   */
   setupPasswordToggle(inputId, toggleBtnId) {
     const input = $id(inputId);
     const toggleBtn = $id(toggleBtnId);
@@ -142,9 +107,6 @@ export class AuthModule extends Module {
     });
   }
 
-  /**
-   * Setup password strength indicator
-   */
   setupPasswordStrength(inputId, requirementsContainerId, strengthContainerId, strengthLabelId) {
     const input = $id(inputId);
     if (!input) return;
@@ -153,7 +115,6 @@ export class AuthModule extends Module {
       const password = input.value;
       const checks = this.validatePassword(password);
       
-      // Update requirements
       const reqItems = document.querySelectorAll(`#${requirementsContainerId} .pa-req-item`);
       reqItems.forEach(item => {
         const req = item.dataset.req;
@@ -167,7 +128,6 @@ export class AuthModule extends Module {
         }
       });
 
-      // Update strength
       const strength = this.getPasswordStrength(password);
       const bars = document.querySelectorAll(`#${strengthContainerId} .pa-strength-bar`);
       bars.forEach((bar, index) => {
@@ -190,9 +150,6 @@ export class AuthModule extends Module {
     });
   }
 
-  /**
-   * Handle Enter key on a field to submit form
-   */
   handleEnterSubmit(inputId, formId) {
     const input = $id(inputId);
     const form = $id(formId);
@@ -206,18 +163,10 @@ export class AuthModule extends Module {
     });
   }
 
-  /**
-   * Redirect to login page
-   */
   redirectToLogin() {
-    // Next.js migration: every route is now absolute, so no more
-    // depth-relative path branching is needed.
     window.location.href = '/login';
   }
 
-  /**
-   * Redirect to dashboard
-   */
   redirectToDashboard() {
     window.location.href = '/';
   }

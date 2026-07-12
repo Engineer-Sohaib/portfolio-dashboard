@@ -49,18 +49,15 @@ export class StateStore {
     });
   }
 
-  /** Read-only convenience getter mirroring `store.state.foo`. */
   get(key) {
     return this._raw[key];
   }
 
-  /** Assign one key. Equivalent to `store.state[key] = value` but chainable. */
   set(key, value) {
     this.state[key] = value;
     return this;
   }
 
-  /** Shallow-merge several keys at once, notifying subscribers a single time. */
   update(patch) {
     this.batch(() => {
       Object.entries(patch).forEach(([k, v]) => { this.state[k] = v; });
@@ -100,8 +97,6 @@ export class StateStore {
     if (this._batching) return;
     if (this._scheduled) return;
     this._scheduled = true;
-    // Collapse synchronous bursts (e.g. a for-loop of `.push` + reassign)
-    // into a single microtask-deferred notification.
     Promise.resolve().then(() => this._flush());
   }
 

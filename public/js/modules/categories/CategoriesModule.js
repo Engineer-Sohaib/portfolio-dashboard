@@ -18,12 +18,6 @@ const CATEGORY_ICONS = {
 };
 const DEFAULT_CAT_ICON = 'ri-folder-line';
 
-/**
- * Categories are keyed by string slug rather than a numeric id, so this
- * module stores records internally as `{ key, label, cls, desc }` objects
- * (the generic engine's `idField: 'key'`) while persisting to the original
- * `{ [key]: {label,cls,desc} }` map shape for storage compatibility.
- */
 export class CategoriesModule extends CrudCardModule {
   constructor() {
     super({
@@ -52,8 +46,6 @@ export class CategoriesModule extends CrudCardModule {
     });
   }
 
-  // ---- persistence: map <-> array bridge --------------------------------
-
   async load() {
     const raw = await storage.get(this.storageKey, null);
     const map = raw && typeof raw === 'object' ? { ...DEFAULT_CATEGORY_META, ...raw } : { ...DEFAULT_CATEGORY_META };
@@ -68,22 +60,16 @@ export class CategoriesModule extends CrudCardModule {
   }
 
   getProjectCountForCategory(key) {
-    // Cross-module read: Categories displays a live project count without
-    // importing ProjectsModule — it reads the Projects module's own storage
-    // key directly. This is a deliberate, narrow exception to "modules only
-    // talk through the bus": it's a read of another module's persisted
-    // output, not a call into its runtime code.
     try {
       const raw = localStorage.getItem('pa_projects');
       if (raw) {
         const projects = JSON.parse(raw);
         return Array.isArray(projects) ? projects.filter((p) => p.catKey === key).length : '—';
       }
-    } catch { /* ignore */ }
+    } catch { }
     return '—';
   }
 
-  // ---- CrudCardModule overrides -----------------------------------------
 
   seedData() { return Object.entries(DEFAULT_CATEGORY_META).map(([key, meta]) => ({ key, ...meta })); }
 
@@ -102,12 +88,11 @@ export class CategoriesModule extends CrudCardModule {
     return `<div class="pa-card${this.bulkSelect?.cardClass(record.key) || ''}" data-cat-key="${escapeHtml(record.key)}" style="animation-delay:${Math.min(index, 12) * 40}ms;"><div class="pa-card-img" style="height:110px;">${this.bulkSelect?.checkboxHtml(record.key, `Select ${escapeHtml(record.label)}`) || ''}<div class="pa-card-img-inner" style="background:var(--pa-bg-card);"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;"><div style="width:52px;height:52px;border-radius:14px;background:var(--pa-bg-chip);border:1px solid var(--pa-border-soft);display:flex;align-items:center;justify-content:center;"><i class="${icon} ${record.cls}" style="font-size:24px;"></i></div><span style="font-family:var(--pa-font-mono);font-size:9.5px;color:var(--pa-text-faint);background:var(--pa-bg-chip);border:1px solid var(--pa-border-soft);border-radius:4px;padding:2px 7px;">${escapeHtml(record.cls)}</span></div></div>${isDefault ? `<span class="pa-featured-badge" style="background:var(--pa-text-ghost);box-shadow:none;">Built-in</span>` : ''}</div><div class="pa-card-body"><div class="pa-card-title" title="${escapeHtml(record.label)}">${escapeHtml(record.label)}</div><div class="pa-card-category ${escapeHtml(record.cls)}">${escapeHtml(record.key)}</div><div class="pa-card-desc">${escapeHtml(desc) || '<em style="color:var(--pa-text-ghost);">No description</em>'}</div><div class="pa-card-tags" style="margin-bottom:0;"><span class="pa-tag mb-10"><i class="ri-apps-line" style="font-size:10px;margin-right:3px;"></i>${escapeHtml(String(count))} project${count === 1 ? '' : 's'}</span></div><div class="pa-card-actions"><button class="pa-action-btn pa-action-edit" data-cat-key="${escapeHtml(record.key)}" title="Edit category" aria-label="Edit ${escapeHtml(record.label)}"><i class="ri-pencil-line"></i></button><button class="pa-action-btn pa-action-delete" data-cat-key="${escapeHtml(record.key)}" title="Delete category" aria-label="Delete ${escapeHtml(record.label)}"><i class="ri-delete-bin-line"></i></button><button class="pa-action-btn pa-action-more" data-cat-key="${escapeHtml(record.key)}" title="More options" aria-label="More options for ${escapeHtml(record.label)}"><i class="ri-more-2-fill"></i></button><div class="pa-card-menu" data-cat-key="${escapeHtml(record.key)}"><div class="pa-card-menu-item" data-action="duplicate" data-cat-key="${escapeHtml(record.key)}"><i class="ri-file-copy-line"></i> Duplicate</div><div class="pa-card-menu-item" data-action="copy-key" data-cat-key="${escapeHtml(record.key)}"><i class="ri-clipboard-line"></i> Copy key</div><div class="pa-card-menu-item danger" data-action="delete" data-cat-key="${escapeHtml(record.key)}"><i class="ri-delete-bin-line"></i> Delete</div></div></div></div></div>`;
   }
 
-  renderPagination() { /* Categories page has no pagination UI in the original design. */ }
+  renderPagination() {  }
 
   setViewModeFromStore() {
     const mode = this.store.get('viewMode') || 'grid';
     
-    // Categories page uses paCatGridViewBtn and paCatListViewBtn
     const gridBtn = $id('paCatGridViewBtn') || $id('paGridViewBtn');
     const listBtn = $id('paCatListViewBtn') || $id('paListViewBtn');
     
@@ -128,7 +113,6 @@ export class CategoriesModule extends CrudCardModule {
     });
   }
 
-  // Override render to include view mode sync
   render() {
     const { ids } = this.config;
     const all = this.getFiltered();
@@ -185,8 +169,6 @@ export class CategoriesModule extends CrudCardModule {
     this.render();
     this.toast(`Duplicated as "${copy.key}". Edit it to customise.`, 'info');
   }
-
-  // ---- forms --------------------------------------------------------------
 
   resetAddForm() {
     ['catAddKey', 'catAddLabel', 'catAddCls', 'catAddDesc'].forEach((id) => { const el = $id(id); if (el) el.value = ''; });
@@ -276,7 +258,6 @@ export class CategoriesModule extends CrudCardModule {
     record.desc = fields.desc;
   }
 
-  // handleAddSubmit override: category id is the key itself, not an auto-increment.
   handleAddSubmit() {
     const result = this.validateForm('add');
     if (!result.valid) { this.toast('Please fill in all required fields', 'danger'); return; }
@@ -308,12 +289,9 @@ export class CategoriesModule extends CrudCardModule {
     }, 350);
   }
 
-  // ---- events ---------------------------------------------------------------
-
   bindEvents() {
     super.bindEvents();
     
-    // Categories uses custom search IDs, so we need to handle them separately
     const searchInput = $id('paCatSearchInput');
     if (searchInput) {
       this.on(searchInput, 'input', () => {
@@ -331,11 +309,8 @@ export class CategoriesModule extends CrudCardModule {
       this.render();
     });
 
-    // FIX: View mode toggle with proper active class handling for Categories
     const gridBtn = $id('paCatGridViewBtn') || $id('paGridViewBtn');
     const listBtn = $id('paCatListViewBtn') || $id('paListViewBtn');
-    
-    // Remove existing listeners by cloning
     if (gridBtn) {
       const parent = gridBtn.parentNode;
       const newGridBtn = gridBtn.cloneNode(true);
